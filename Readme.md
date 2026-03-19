@@ -1,89 +1,142 @@
-# 🏠 End-to-End MLOps Project – House Price Prediction System
+# 🚕 End-to-End Streaming MLOps System – NYC Taxi Fare Prediction
 
-An industry-style end-to-end Machine Learning system built using:
+A production-grade Machine Learning system that predicts taxi fares using real-world streaming data.
 
-- 🐍 Python (Anaconda)
-- 📊 Scikit-learn
-- 📈 MLflow (Experiment Tracking)
-- 📉 Evidently AI (Monitoring & Drift Detection)
-- ⚡ FastAPI (Model API)
-- 🐳 Docker (Containerization)
-- ☁️ AWS EC2 (Deployment)
-- ⚛️ React (Frontend UI)
+This project demonstrates:
+- Batch + Streaming pipelines
+- Automated retraining
+- Model monitoring
+- Cloud-native deployment
 
-This project demonstrates the complete ML lifecycle — from training to production deployment.
+---
+
+# 🧠 Tech Stack
+
+## Machine Learning
+- Python
+- Scikit-learn
+- Pandas, NumPy
+- MLflow (Experiment Tracking)
+- Evidently AI (Monitoring & Drift Detection)
+
+## Backend & APIs
+- FastAPI
+- Pydantic
+
+## Streaming & Cloud
+- AWS Kinesis (Data Streaming)
+- AWS Lambda (Real-time processing)
+- AWS S3 (Data + Model Storage)
+
+## Infrastructure
+- Terraform (Infrastructure as Code)
+- Docker (Containerization)
+
+## Frontend
+- React + Axios
 
 ---
 
 # 🎯 Problem Statement
 
-Build a production-ready ML system that predicts California house prices based on user-provided features.
+Predict **NYC taxi fare amount** based on:
+
+- Pickup & Drop coordinates
+- Passenger count
+- Time features (hour, day, month)
 
 ---
 
 # 📊 Dataset
 
-California Housing Dataset  
-Loaded via: sklearn.datasets.fetch_california_housing
+NYC Taxi Trip Records  
+(Updated monthly)
 
 Why this dataset?
-- Clean and realistic
-- Requires preprocessing
-- Suitable for regression
-- Perfect intermediate ML project
-
-Target Variable:
-- MedHouseVal
-
-Key Features:
-- MedInc (Median Income)
-- HouseAge
-- AveRooms
-- AveBedrms
-- Population
-- AveOccup
-- Latitude
-- Longitude
+- Real-world streaming data
+- Time-dependent patterns
+- Ideal for drift detection & retraining pipelines
 
 ---
 
 # 🧠 System Architecture
 
-React Frontend  
-        ↓  
-FastAPI Backend  
-        ↓  
-Scikit-learn Model (.pkl)  
-        ↓  
-Prediction Response  
+## 🔹 Real-Time Prediction Flow
 
-MLflow → Tracks experiments  
-Evidently → Monitors performance  
-Docker → Containerizes app  
-AWS EC2 → Hosts production API  
+User (React)
+   ↓
+FastAPI (AWS EC2)
+   ↓
+ML Model (latest version)
+   ↓
+Prediction Response
+
+---
+
+## 🔹 Streaming Data Pipeline
+
+Taxi Data Stream
+   ↓
+AWS Kinesis
+   ↓
+AWS Lambda (preprocessing)
+   ↓
+S3 Bucket (raw + processed data)
+
+---
+
+## 🔹 Training Pipeline
+
+S3 (new data)
+   ↓
+Training Script (EC2 / Scheduled)
+   ↓
+MLflow (experiment tracking)
+   ↓
+Model Registry
+   ↓
+Deploy new model
+
+---
+
+## 🔹 Monitoring
+
+Evidently AI:
+- Data Drift Detection
+- Model Performance Monitoring
 
 ---
 
 # 📁 Project Structure
 
-house-price-mlops/
+taxi-mlops/
 │
 ├── data/
-├── notebooks/
-│   └── eda.ipynb
+│   ├── raw/
+│   ├── processed/
 │
-├── src/
+├── pipeline/
+│   ├── ingest.py
+│   ├── preprocess.py
 │   ├── train.py
-│   ├── evaluate.py
-│   ├── predict.py
-│   └── model.pkl
+│   ├── retrain_pipeline.py
 │
 ├── api/
-│   ├── main.py
-│   └── schema.py
+│   └── main.py
+│
+├── lambda/
+│   └── handler.py
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   └── outputs.tf
 │
 ├── monitoring/
 │   └── evidently_report.py
+│
+├── models/
+│   └── latest_model.pkl
 │
 ├── frontend/
 │   └── react-app/
@@ -94,86 +147,104 @@ house-price-mlops/
 
 ---
 
-# 🚀 Implementation Guide
+# 🚀 Step-by-Step Implementation
 
 ---
 
-## 1️⃣ Setup Environment (Anaconda)
+## 1️⃣ Setup Environment
 
-conda create -n mlops python=3.10
-conda activate mlops
-pip install -r requirements.txt
-
----
-
-## 2️⃣ Dataset Loading & EDA
-
-Inside notebooks/eda.ipynb:
-
-- Load dataset using fetch_california_housing
-- Convert to pandas DataFrame
-- Check missing values
-- Perform correlation analysis
-- Visualize distributions
+conda create -n mlops python=3.10  
+conda activate mlops  
+pip install -r requirements.txt  
 
 ---
 
-## 3️⃣ Train Model (Scikit-learn)
+## 2️⃣ Data Ingestion (Batch)
 
-File: src/train.py
+- Download NYC taxi dataset (monthly)
+- Store in local or S3 bucket
+
+---
+
+## 3️⃣ Streaming Setup (AWS Kinesis)
+
+- Create Kinesis Data Stream
+- Configure shard count
+- Send taxi events (JSON format)
+
+---
+
+## 4️⃣ Lambda Processing
+
+- Trigger Lambda from Kinesis
+- Parse incoming data
+- Clean & transform features
+- Store processed data in S3
+
+File: lambda/handler.py
+
+---
+
+## 5️⃣ Data Storage (S3)
+
+Buckets:
+- raw-data/
+- processed-data/
+- models/
+
+---
+
+## 6️⃣ Model Training
+
+File: pipeline/train.py
 
 Steps:
-- Train/Test split
-- Feature scaling (StandardScaler)
-- Train models:
-  - Linear Regression
-  - Random Forest
-  - Gradient Boosting
-- Evaluate using RMSE and R²
-- Save best model as model.pkl
-
-Example snippet:
-
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
-import joblib
-
-joblib.dump(model, "src/model.pkl")
+- Load processed data
+- Feature engineering
+- Train model (Random Forest / XGBoost)
+- Evaluate (RMSE)
+- Save model
 
 ---
 
-## 4️⃣ Track Experiments with MLflow
+## 7️⃣ MLflow Integration
 
-Inside train.py:
+- Track parameters
+- Track metrics
+- Store model artifacts
 
-- Log hyperparameters
-- Log RMSE
-- Log trained model
-
-Run MLflow UI:
-
+Run:
 mlflow ui
 
-Open:
-http://localhost:5000
+---
+
+## 8️⃣ Retraining Pipeline
+
+File: pipeline/retrain_pipeline.py
+
+Steps:
+1. Load new monthly data from S3
+2. Merge with historical data
+3. Train new model
+4. Compare with old model
+5. Replace if improved
 
 ---
 
-## 5️⃣ Model Monitoring with Evidently AI
+## 9️⃣ Model Monitoring (Evidently AI)
 
 File: monitoring/evidently_report.py
 
 Generate:
-- Data Drift Report
-- Regression Performance Report
+- Data drift report
+- Prediction performance report
 
 Output:
-- HTML report stored in monitoring/
+HTML reports
 
 ---
 
-## 6️⃣ Build FastAPI Backend
+## 🔟 FastAPI Backend
 
 File: api/main.py
 
@@ -183,63 +254,77 @@ GET /
 → Health check
 
 POST /predict
-→ Accept JSON input and return prediction
+→ Returns taxi fare prediction
 
-Run locally:
-
+Run:
 uvicorn api.main:app --reload
 
-Open:
-http://127.0.0.1:8000/docs
-
 ---
 
-## 7️⃣ Dockerize Application
+## 1️⃣1️⃣ Dockerization
 
 Build image:
-
-docker build -t house-price-api .
+docker build -t taxi-ml-api .
 
 Run container:
-
-docker run -p 8000:8000 house-price-api
-
----
-
-## 8️⃣ Deploy on AWS EC2
-
-Steps:
-
-1. Launch Ubuntu EC2 instance
-2. Install Docker
-3. Clone repository
-4. Build Docker image
-5. Run container
-6. Open port 8000 in security group
-
-Access API:
-http://<EC2-PUBLIC-IP>:8000/docs
+docker run -p 8000:8000 taxi-ml-api
 
 ---
 
-## 9️⃣ Build React Frontend
+## 1️⃣2️⃣ Terraform Infrastructure
 
-Inside frontend/:
+Inside terraform/:
 
-npm create vite@latest
-npm install axios
+Initialize:
+terraform init
+
+Plan:
+terraform plan
+
+Apply:
+terraform apply
+
+Resources created:
+- Kinesis Stream
+- Lambda Function
+- S3 Buckets
+- IAM Roles
+
+---
+
+## 1️⃣3️⃣ AWS Deployment
+
+- Launch EC2 instance
+- Install Docker
+- Pull project repo
+- Run container
+- Open port 8000
+
+---
+
+## 1️⃣4️⃣ React Frontend
+
+Setup:
+npm create vite@latest  
+npm install axios  
 
 Features:
-- Form input fields for housing features
-- Submit button
-- Display predicted price
-- Axios POST request to FastAPI backend
+- Input form (trip details)
+- API call to FastAPI
+- Display predicted fare
 
-Example API call:
+Example:
+axios.post("http://<EC2-IP>:8000/predict", data)
 
-axios.post("http://<EC2-IP>:8000/predict", formData)
+---
 
-Enable CORS in FastAPI for frontend communication.
+# 🔁 Automation (Monthly Retraining)
+
+Use cron job:
+
+crontab -e
+
+0 0 1 * * python pipeline/retrain_pipeline.py
 
 ---
 
@@ -252,47 +337,48 @@ mlflow
 evidently  
 fastapi  
 uvicorn  
+boto3  
 joblib  
 
 ---
 
 # ✅ Final Checklist
 
-[ ] Environment setup complete  
-[ ] Dataset explored  
+[ ] Kinesis stream working  
+[ ] Lambda processing data  
+[ ] Data stored in S3  
 [ ] Model trained  
-[ ] MLflow tracking working  
+[ ] MLflow tracking enabled  
 [ ] Evidently reports generated  
-[ ] FastAPI API running  
-[ ] Docker image built  
-[ ] AWS deployed successfully  
-[ ] React UI connected  
-[ ] End-to-end prediction working  
+[ ] FastAPI API deployed  
+[ ] Docker container running  
+[ ] Terraform infra created  
+[ ] React frontend connected  
+[ ] End-to-end pipeline working  
 
 ---
 
 # 🎓 Learning Outcomes
 
-✔ Full ML lifecycle  
-✔ MLOps tools integration  
-✔ API development  
-✔ Docker containerization  
-✔ AWS deployment  
-✔ Frontend-backend integration  
+✔ Streaming ML pipelines  
+✔ MLOps with AWS  
+✔ Infrastructure as Code (Terraform)  
+✔ Real-time + batch processing  
+✔ Model monitoring & retraining  
+✔ Full-stack ML deployment  
 
 ---
 
 # 🚀 Future Improvements
 
-- CI/CD using GitHub Actions  
-- Model versioning  
-- Automated retraining pipeline  
-- Kubernetes deployment  
-- Cloud monitoring dashboard  
+- CI/CD pipeline (GitHub Actions)
+- Kubernetes deployment
+- Feature store integration
+- Real-time inference via Lambda
+- Model version rollback
 
 ---
 
 # 👨‍💻 Author
 
-Built with discipline, curiosity, and controlled chaos.
-
+Built with ambition, curiosity, and late-night debugging.
