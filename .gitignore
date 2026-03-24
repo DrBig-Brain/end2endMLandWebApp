@@ -1,0 +1,63 @@
+# --- Python and Machine Learning Specific ---
+
+# Virtual environment
+venv/
+.venv/
+
+# Byte-code files
+*.pyc
+__pycache__/
+
+# IDE-specific files and directories (e.g., VS Code, PyCharm)
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# ML-specific ignores (model checkpoints, large data files)
+# Data
+/data/
+/datasets/
+# Models and checkpoints
+*.pkl
+*.joblib
+*.h5
+*.ckpt
+/models/
+/checkpoints/
+
+# Jupyter Notebook specific
+.ipynb_checkpoints/
+# Optional: if you don't want to track output notebooks
+*.nbconvert.ipynb
+
+
+# --- React App (Node.js) Specific ---
+
+# Dependency directory
+node_modules/
+/build
+/dist
+/coverage
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# npm cache files
+.npm/
+.eslintcache
+.stylelintcache
+
+# Miscellaneous
+*.tgz
+.yarn-integrity
