@@ -12,12 +12,6 @@ from sklearn.metrics import root_mean_squared_error
 
 import mlflow
 
-mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("nyc-taxi-experiment-script")
-
-models_folder = Path('models')
-models_folder.mkdir(exist_ok=True)
-
 
 
 def read_dataframe(year, month):
@@ -90,6 +84,13 @@ def train_model(X_train, y_train, X_val, y_val, dv):
 
 
 def run(year, month):
+
+    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_experiment("nyc-taxi-experiment-script")
+
+    models_folder = Path('models')
+    models_folder.mkdir(exist_ok=True)
+
     df_train = read_dataframe(year=year, month=month)
 
     next_year = year if month < 12 else year + 1
